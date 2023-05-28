@@ -113,5 +113,16 @@ def gmail_send_message(service):
             send_message = None
     return send_message
 
+# Log class
+class Log:
+    @staticmethod
+    def error(message):
+        with open('Newsletter_Volume/Sendlog.txt', 'a') as log_file:
+            log_file.write("[ERROR] " + message + "\n")
+
+    @staticmethod
+    def info(message):
+        print("[INFO] " + message)
+
 if __name__ == '__main__':
     main()

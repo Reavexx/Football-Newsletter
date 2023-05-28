@@ -108,17 +108,14 @@ def main():
             # Check if "STOP SENDING" is in the email content
             if 'STOP SENDING' in email_content:
                 # Remove email from db
-                # Db.rmSub(extracted_sender)
-                print(extracted_sender)
+                Db.rmSub(extracted_sender)
                 # Mark the email as read
                 # mark_email_as_read(service, 'me', message['id'])
             
             # Check if "SIGN UP" is in the email content
             if 'SIGN UP' in email_content:
                 # Add email to db
-                # Db.addSub(extracted_sender)
-                print(extracted_sender)
-
+                Db.addSub(extracted_sender)
 
     except Exception as error:
         print(f"An error occurred: {error}")
@@ -143,6 +140,17 @@ def extract_sender(string):
         return content
     else:
         return None
+
+# Log class
+class Log:
+    @staticmethod
+    def error(message):
+        with open('Newsletter_Volume/Readlog.txt', 'a') as log_file:
+            log_file.write("[ERROR] " + message + "\n")
+
+    @staticmethod
+    def info(message):
+        print("[INFO] " + message)
 
 if __name__ == '__main__':
     main()
