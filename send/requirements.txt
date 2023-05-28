@@ -1,0 +1,5 @@
+google-api-python-client
+google-auth-httplib2
+pymongo
+google_auth_oauthlib
+bs4
