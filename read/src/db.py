@@ -16,14 +16,16 @@ col = MongoClient(os.getenv("GET_MONGO_CONSTRING"))["Newsletter"]["Subscribers"]
 
 class Db:
     def rmSub(Email):  
+        lower_email = Email.lower()
         # set query to value of email      
-        query = { "E-Mail": Email }
+        query = { "E-Mail": lower_email }
 
         # remove email from db
         col.delete_one(query)
         return
     
     def addSub(Email):
+        lower_email = Email.lower()
         # set module for insert
         module = { "E-Mail": Email }
 

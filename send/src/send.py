@@ -14,6 +14,7 @@ from email.mime.text import MIMEText
 import google.auth
 
 from db import Db
+from api import Api
 
 from datetime import date
 
@@ -63,6 +64,11 @@ def main():
         with open('Newsletter_Volume/token.json', 'w') as token:
             token.write(creds.to_json())
 
+
+    # check if it its newsletter day
+    if Api.send_or_not() == False:
+        return
+
     try:
         # Call the Gmail API
         service = build('gmail', 'v1', credentials=creds)
@@ -80,17 +86,11 @@ def gmail_send_message(service):
     EmailList = Db.getSubs()
 
     # Set email content 
-    EmailContent = ""
-    Header = "<h1>Hello</h1>"
-    Body = ""
-    Footer = "<h2>Goodbye</h2>"
+    EmailContent = create_email()
 
     # Create email
     for Email in EmailList:
         try:
-
-            EmailContent = (Header + Body + Footer)
-
             message = MIMEText(EmailContent, 'html')
 
             message['To'] = Email
@@ -112,6 +112,37 @@ def gmail_send_message(service):
             print(F'An error occurred: {error}')
             send_message = None
     return send_message
+
+# Create email
+def create_email():
+    header = '<!DOCTYPE html> <html> <head> <style> body { font-family: Arial, sans-serif; background-color: #f1f1f1; } .header { text-align: center; margin-bottom: 20px; } .logo { width: 200px; margin: 0 auto; } .content { background-color: #ffffff; padding: 20px; margin-bottom: 20px; } .headercontent{ background-color: red; padding: 0.5%; color: white; } </style> </head>'
+    body = '<body> <div class="headercontent"> <div class="header"> <h1>Schweizer Nati Newsletter</h1> </div> </div> <div class="content"> <h2>Unsere Schweizer Nati spielt bald wieder!</h2> <img class="logo" src="https://upload.wikimedia.org/wikipedia/de/thumb/5/53/SFV_Logo.svg/1200px-SFV_Logo.svg.png" alt="Schweizer Nationalmannschaftslogo">'
+    
+    # Get Data from Api
+    all_fixtures = Api.getGames()
+    content = ""
+    for fixture_info in all_fixtures:
+        home_team = fixture_info[0].split(": ")[1]
+        away_team = fixture_info[1].split(": ")[1]
+        league_name = fixture_info[2].split(": ")[1]
+        venue = fixture_info[3].split(": ")[1]
+        date = fixture_info[4].split(": ")[1]
+
+        # Check if Switzerland is the Home or Away Team
+        if home_team != 'Switzerland':
+            away_team = home_team
+        
+        # Access the away_team information
+        content += f'<p style="font-size: 150%;">Datum: {date}</p>'
+        content += f'<p style="font-size: 150%;">Gegner: {away_team}</p>'
+        content += f'<p style="font-size: 150%;">Art: {league_name}</p>'
+        content += f'<p style="font-size: 150%;">Ort: {venue}</p>'
+        content += '<p style="font-size: 150%;"></p>'
+    
+    footer = "</div></body></html>"
+
+    email_content = (header + body + content + footer)
+    return email_content
 
 # Log class
 class Log:
